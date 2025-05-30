@@ -24,6 +24,13 @@ enum Commands {
     Add {
         title: String,
     },
+    List,
+    Done {
+        id: u32,
+    },
+    Delete{
+        id:u32,
+    }
 }
 
 fn main() {
@@ -49,6 +56,49 @@ fn main() {
             save_tasks(&tasks);
 
             println!("Görev eklendi: {}", title);
+        }
+         Commands::List => {
+            let tasks = load_tasks();
+            if tasks.is_empty() {
+                println!(" Hiç görev yok.");
+            } else {
+                println!(" Görevler:");
+                for task in tasks {
+                    let status = if task.done { "Tamamlandı" } else { "Tamamlanmadı"};
+                    println!("{} [{}] {}", task.id, status, task.title);
+                }
+            }
+        }
+         Commands::Done { id } => {
+            let mut tasks = load_tasks();
+            let mut found = false;
+
+            for task in &mut tasks {
+                if task.id == *id {
+                    task.done = true;
+                    found = true;
+                    break;
+                }
+            }
+
+            if found {
+                save_tasks(&tasks);
+                println!(" Görev tamamlandı: ID {}", id);
+            } else {
+                println!(" Görev bulunamadı: ID {}", id);
+            }
+        }
+        Commands::Delete{id}=>{
+            let mut tasks=load_tasks();
+            let original_len = tasks.len();
+            tasks.retain(|task| task.id != *id);
+
+            if tasks.len() < original_len {
+                save_tasks(&tasks);
+                println!("Görev silindi: ID {}", id);
+            } else {
+                println!(" Görev bulunamadı: ID {}", id);
+            }
         }
     }
 }
