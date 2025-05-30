@@ -3,6 +3,8 @@ use serde::{Deserialize, Serialize};
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
 use std::path::Path;
+use colored::*; 
+
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Task {
@@ -30,7 +32,7 @@ enum Commands {
     },
     Delete{
         id:u32,
-    }
+    },
 }
 
 fn main() {
@@ -60,12 +62,17 @@ fn main() {
          Commands::List => {
             let tasks = load_tasks();
             if tasks.is_empty() {
-                println!(" Hiç görev yok.");
+                println!("{}"," Hiç görev yok.".bright_black());
             } else {
-                println!(" Görevler:");
+                println!("{}"," Görevler:".bold().cyan());
                 for task in tasks {
-                    let status = if task.done { "Tamamlandı" } else { "Tamamlanmadı"};
-                    println!("{} [{}] {}", task.id, status, task.title);
+                    let status = if task.done { "Tamamlandı".green() } else { "Tamamlanmadı".red()};
+                    let title = if task.done {
+                        task.title.strikethrough().dimmed()
+                    } else {
+                        task.title.normal()
+                    };
+                    println!("{} [{}] {}", task.id, status, title);
                 }
             }
         }
